@@ -18,7 +18,6 @@ document.body.style.display = "block";
 
 
 //region Load scripts.
-loadScript("melonJS-2.1.3.js");
-loadScript("util.js");
+loadScript("engine.js");
 loadScript("gameScript.js");
 //endregion
