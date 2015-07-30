@@ -1,4 +1,4 @@
-var nec = {};
+var engine = {};
 
 //region Inheritance related functions.
 Function.prototype.addMethod = function(name, method)
@@ -37,7 +37,7 @@ Number.prototype.clamp = function (low, high) {
 
 
 //region drawing namespace.
-nec.drawing = {
+engine.drawing = {
 
     //region Colour constructor.
     Colour: function(r, g, b, a)
@@ -111,10 +111,6 @@ nec.drawing = {
 
 
 };
-
-
-
-
 
 
     //region Static members of the colour class.
@@ -269,18 +265,16 @@ nec.drawing = {
         [ "wheat",                  [ 245, 222, 179 ] ],
         [ "whitesmoke",             [ 245, 245, 245 ] ],
         [ "yellowgreen",            [ 154, 205,  50 ] ]
-    ].forEach( function(value){nec.drawing.Colour[value[0]] = new nec.drawing.Colour(value[1][0], value[1][1], value[1][2]); } );
+    ].forEach( function(value){engine.drawing.Colour[value[0]] = new engine.drawing.Colour(value[1][0], value[1][1], value[1][2]); } );
 //endregion
 
 
 // An auto-resizing draw surface.
-nec.drawing.Surface = function(name, options){
+engine.drawing.Surface = function(name, options){
     var canvas = document.createElement("canvas");
     canvas.id = name;
     canvas.style.zIndex = options.zIndex || 0;
     document.body.appendChild(canvas);
-
-
 
     function resize(){
         canvas.width = window.innerWidth;
@@ -300,7 +294,7 @@ nec.drawing.Surface = function(name, options){
     return publicMembers;
 };
 
-nec.drawing.
+engine.drawing.
 
 necromunda.drawing.Point = function(x, y, surface){
     this.x = x;
@@ -315,7 +309,7 @@ necromunda.drawing.Point = function(x, y, surface){
     }
 };
 
-//nec.drawing.line = function()
+//engine.drawing.line = function()
 //endregion
 
 
