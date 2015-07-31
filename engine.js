@@ -137,12 +137,10 @@ engine.Surface = function(name, options){
     }
 
     function clearScreen(){
-        var path = new Path2D();
-        path.rect(0, 0, canvas.width, canvas.height);
-
-        canvas.context.globalAlpha = canvas.colour.a/255;
-        canvas.context.fillStyle = canvas.colour.toHex();
-        canvas.context.fill(path);
+        canvas.context.save();
+        canvas.context.setTransform(1, 0, 0, 1, 0, 0);
+        canvas.context.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.context.restore();
     }
     //endregion
 
@@ -225,7 +223,7 @@ engine.Surface = function(name, options){
             if(yScroll*ySpeed <= 0) ySpeed = yScroll;
             else ySpeed += 1/ySpeed;
             if(xSpeed !== 0 || ySpeed !== 0){
-                canvas.context.translate(2*xSpeed, 2*ySpeed);
+                canvas.context.translate(2*xSpeed*(1/currentScale), 2*ySpeed*(1/currentScale));
                 triggerRender();
                 setTimeout(scroll, 1000/60);
             }
@@ -239,11 +237,20 @@ engine.Surface = function(name, options){
 
     //region scrollHandler method, responds to user input 'WASD".
     zoomHandler();
+    var currentScale = 1;
+    var baseScale = 64;
     function zoomHandler(){
-        var scrolling = false, wDown = false, aDown = false, sDown = false, dDown = false, xScroll = 0, yScroll = 0, xSpeed = 0, ySpeed = 0;
+        canvas.context.scale(baseScale, baseScale);
         window.addEventListener("wheel", wheel);
         function wheel(wheelEvent){
-            console.log("Wheel event. x: " + wheelEvent.deltaX + " y: " + wheelEvent.deltaY + " z: " + wheelEvent.deltaZ);
+            var tempScale;
+            if(wheelEvent.deltaY <= 0) tempScale = currentScale*Math.log(-wheelEvent.deltaY);
+            else tempScale = currentScale/Math.log(wheelEvent.deltaY);
+            tempScale = tempScale.clamp(1/16, 16);
+            canvas.context.scale(tempScale/currentScale, tempScale/currentScale);
+            currentScale = tempScale;
+            console.log(currentScale);
+            triggerRender();
         }
     }
     //endregion
@@ -324,7 +331,7 @@ engine.Point.inherit(engine.Vector);
 //endregion
 
 engine.guiLayer = new engine.Surface("guiLayer", {zIndex:1});
-var point = new engine.Point(100, 100, engine.guiLayer);
+var point = new engine.Point(10, 10, engine.guiLayer);
 
 
 
@@ -332,7 +339,7 @@ engine.Handle = function(x, y, surface){
     engine.Point.call(this, x, y, surface);
 
 
-
+    surface.addEventListener()
 
 
     //Like a point that can be hovered and dragged.
