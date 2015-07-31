@@ -38,10 +38,9 @@ var engine = {};
 
 
 
-engine.drawing = {};
 
 //region Colour constructor.
-engine.drawing.Colour = function(r, g, b, a){
+engine.Colour = function(r, g, b, a){
     r = r.clamp(0, 255);
     g = g.clamp(0, 255);
     b = b.clamp(0, 255);
@@ -66,8 +65,15 @@ engine.drawing.Colour = function(r, g, b, a){
 //endregion
 
 
+//region Static Colour instances.
+engine.Colour.clear = new engine.Colour(0, 0, 0, 0);
+engine.Colour.white = new engine.Colour(255, 255, 255, 255);
+engine.Colour.black = new engine.Colour(0, 0, 0, 255);
+//endregion
+
+
 //region ColourHSV constructor.
-engine.drawing.ColourFromHSV = function(h, s, v, a){
+engine.Colour.RGBFromHSV = function(h, s, v, a){
     h = h.clamp(0, 1);
     s = s.clamp(0, 1);
     v = v.clamp(0, 1);
@@ -106,38 +112,123 @@ engine.drawing.ColourFromHSV = function(h, s, v, a){
 
 
 //region Surface constructor (auto-resizing).
-engine.drawing.Surface = function(name, options){
+engine.Surface = function(name, options){
+
+
+    //region Create and append a canvas to the document.
     var canvas = document.createElement("canvas");
     canvas.id = name;
     canvas.style.zIndex = options.zIndex || 0;
     document.body.appendChild(canvas);
-
-    function resize(){
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        console.log("Resize occurred: " + canvas.width + ", " + canvas.height);
-    }
-    window.addEventListener("resize", resize);
-    resize();
-
     canvas.context = canvas.getContext("2d");
+    //endregion
+
+
+    //region Resize handler.
+    function resizeHandler(){
+        window.addEventListener("resize", resize);
+        function resize(){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+    }
+    resizeHandler();
+    //endregion
+
+
+    //region Scroll handler.
+    function scrollHandler(){
+        var wDown = false, aDown = false, sDown = false, dDown = false; xScroll = 0, yScroll = 0;
+        window.addEventListener("keydown", keyDown);
+        function keyDown(event){
+            console.log("keydown");
+            if(event.key === "w" && wDown === false){
+                wDown = true;
+                yScroll -= 1;
+
+            }
+            else if(event.key === "a" && aDown === false){
+                aDown = true;
+                xScroll -= 1;
+            }
+            else if(event.key === "s" && sDown === false){
+                sDown = true;
+                yScroll += 1;
+            }
+            else if(event.key === "d" && dDown === false){
+                dDown = true;
+                xScroll += 1;
+            }
+            else return;
+
+            scroll();
+        }
+
+        window.addEventListener("keyup", keyUp);
+        function keyUp(event){
+            console.log("keyup");
+            if(event.key === "w"){
+                wDown = false;
+                yScroll += 1;
+            }
+            else if(event.key === "a"){
+                aDown = false;
+                xScroll += 1;
+            }
+            else if(event.key === "s"){
+                sDown = false;
+                yScroll -= 1;
+            }
+            else if(event.key === "d"){
+                dDown = false;
+                xScroll -= 1;
+            }
+            else return;
+
+            scroll();
+        }
+
+        function scroll(){
+            if(xScroll !== 0 || yScroll !== 0){
+                canvas.context.translate(xScroll, yScroll);
+                fillDot();
+                setTimeout(scroll, 1000/60);
+            }
+            function fillDot(){
+                var radius = 32;
+                var path = new Path2D();
+                var colour = engine.Colour.black;
+                path.arc(100 - radius/2, 100 - radius/2, radius, 0, 2*Math.PI);
+                canvas.context.globalAlpha = colour.a/255;
+                canvas.context.fillStyle = colour.toHex();
+                canvas.context.fill(path);
+            }
+        }
+    }
+    scrollHandler();
+    //endregion
+
+
+
+
 
     // The interface visible to the rest of the program.
     var publicMembers = {
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
         drawPath: function(path2d, colour){
-            canvas.context.globalAlpha = colour.a;
+            canvas.context.globalAlpha = colour.a/255;
             canvas.context.strokeStyle = colour.toHex();
             canvas.context.stroke(path2d);
         },
         fillPath: function(path2d, colour){
-            canvas.context.globalAlpha = colour.a;
+            canvas.context.globalAlpha = colour.a/255;
             canvas.context.fillStyle = colour.toHex();
             canvas.context.fill(path2d);
         },
         renderText: function(x, y, string, colour){
-            canvas.context.globalAlpha = colour.a;
+            canvas.context.globalAlpha = colour.a/255;
             canvas.context.fillStyle = colour.toHex();
             canvas.context.fillText(string, x, y);
         },
@@ -151,19 +242,19 @@ engine.drawing.Surface = function(name, options){
 
 
 //region WorldView constructor.
-engine.drawing.WorldView = function(name, options){
+engine.WorldView = function(name, options){
 
 };
 //endregion
 
 
 //region Static draw surfaces.
-engine.guiLayer = new engine.drawing.Surface("guiLayer", {zIndex:1});
+engine.guiLayer = new engine.Surface("guiLayer", {zIndex:1});
 //endregion
 
 
 //region Vector constructor.
-engine.drawing.Vector = function(x, y){
+engine.Vector = function(x, y){
     this.x = x || 0;
     this.y = y || 0;
     this.magnitude = function(){
@@ -173,31 +264,40 @@ engine.drawing.Vector = function(x, y){
         return new Vector(this.x/this.length(), this.y/this.length());
     }
 };
+engine.Vector.zero = new engine.Vector(0,0);
 //endregion
 
 
 //region Point constructor.
-engine.drawing.Point = function(x, y, surface){
-    Vector.call(this, x, y);
+engine.Point = function(x, y, surface){
+    engine.Vector.call(this, x, y);
 
-    var radius = 0.5;
+    var radius = 4;
     this.draw = function()
     {
         var path = new Path2D();
-            canvas.context.beginPath();
-        canvas.context.arc(this.x - radius/2, this.y - radius/2, 2, 0, 2*Math.PI);
-        canvas.context.stroke();
+        path.arc(this.x - radius/2, this.y - radius/2, 2, 0, 2*Math.PI);
+        surface.fillPath(path, engine.Colour.black);
     }
 };
+engine.Point.inherit(engine.Vector);
 
-engine.drawing.Handle = function(x, y){
-    Point.call(this, x, y);
+var point = new engine.Point(100, 100, engine.guiLayer);
+point.draw();
+
+
+engine.Handle = function(x, y, surface){
+    engine.Point.call(this, x, y, surface);
+
+
+
+
 
     //Like a point that can be hovered and dragged.
 };
 
-engine.drawing.Path = function(){
-    //An array of handles with lines inbetween.
+engine.Path = function(){
+    //An array of handles connected by lines.
     //If the line itself is grabbed, create a new handle.
 };
 
@@ -218,8 +318,9 @@ function Line(origin, destination){
 }
 
 
-function Character(parameters){
-    this.position = parameters.position || new Vector(0,0);
+function Combatant(parameters){
+    this.character = parameters.character;
+    this.position = parameters.position || engine.vector().zero;
     this.speed = parameters.speed || 0;
     this.path = parameters.path || null;
 
