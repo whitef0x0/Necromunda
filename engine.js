@@ -114,144 +114,203 @@ engine.Colour.RGBFromHSV = function(h, s, v, a){
 //region Surface constructor (auto-resizing).
 engine.Surface = function(name, options){
 
+    // References to the DOM elements:
+    var canvas, context;
 
-    //region Create and append a canvas to the document.
-    var canvas = document.createElement("canvas");
-    canvas.id = name;
-    canvas.style.zIndex = options.zIndex || 0;
-    canvas.colour = options.colour || engine.Colour.white;
-    document.body.appendChild(canvas);
-    canvas.context = canvas.getContext("2d");
-    //endregion
+    // Information relating to the canvas transform:
+    var xOffset = 0, yOffset = 0;
+    var baseScale = 64; //Pixel per meter.
+    var activeScale = 1; //Clamped between 16 and 1/16.
 
+    // Set true by requestRender(), and set false after each render event.
+    var renderRequest = false;
 
-    //region triggerRender function and renderList array.
+    // Contains a list of object-method pairs to be invoked for rendering.
     var renderList = [];
-    function triggerRender(){
-        clearScreen();
-        for(var i = 0; i < renderList.length; i++){
-            if( typeof(renderList[i].method) === typeof(Function) ){
-                renderList[i].method.call(renderList[i].object);
-            }
-        }
-    }
 
-    function clearScreen(){
-        canvas.context.save();
-        canvas.context.setTransform(1, 0, 0, 1, 0, 0);
-        canvas.context.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.context.restore();
+
+    //region Initialize the canvas.
+    initialize(name, options);
+    function initialize(name, options){
+        canvas = document.createElement("canvas");
+        canvas.id = name;
+        canvas.style.zIndex = options.zIndex || 0;
+        canvas.colour = options.colour || engine.Colour.white;
+        document.body.appendChild(canvas);
+        context = canvas.getContext("2d");
     }
     //endregion
 
+    //region gameLoop, requestRender and triggerRender functions.
+    gameLoop();
+    function gameLoop(){
+        if(renderRequest){
+            applyTransform();
+            triggerRender();
+            renderRequest = false;
+        }
+        window.requestAnimationFrame(gameLoop);
 
-    //region resizeHandler method, responds to resizing of the browser window.
-    resizeHandler();
-    function resizeHandler()
-    {
-        window.addEventListener("resize", resize);
-        function resize()
+        //region applyTransform method.
+        function applyTransform(){
+            var absoluteScale = baseScale*activeScale;
+            context.setTransform(1, 0, 0, 1, 0, 0);
+
+
+
+
+            context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));///(1/2)*(canvas.width/absoluteScale), yOffset - (1/2)*(canvas.height/absoluteScale));
+            context.scale(absoluteScale, absoluteScale);
+            //
+            //
+
+            //region setTransform API
+            //      context.setTransform(a,b,c,d,e,f);
+            // a 	Scales the drawings horizontally
+            // b 	Skews the drawings horizontally
+            // c 	Skews the drawings vertically
+            // d 	Scales the drawings vertically
+            // e 	Moves the the drawings horizontally
+            // f 	Moves the the drawings vertically
+            //endregion
+
+        }
+        //endregion
+
+        //region Trigger render and clearScreen methods.
+        function triggerRender(){
+            clearScreen();
+            for(var i = 0; i < renderList.length; i++){
+                if( typeof(renderList[i].method) === typeof(Function) ){
+                    renderList[i].method.call(renderList[i].object);
+                }
+            }
+            function clearScreen(){
+                context.save();
+                context.setTransform(1, 0, 0, 1, 0, 0);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.restore();
+            }
+        }
+        //endregion
+
+    }
+    function requestRender(){ renderRequest = true; }
+    //endregion
+
+
+    //region eventHandler function (handles scrolling, zooming and resizing).
+    eventHandler();
+    function eventHandler(){
+
+        //region resizeHandler method, resizes the canvas in response to window resizing.
+        resizeHandler();
+        function resizeHandler()
         {
-            canvas.context.save();
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            canvas.context.restore();
-            triggerRender();
-        }
-        resize();
-    }
-    //endregion
-
-
-    //region scrollHandler method, responds to user input 'WASD".
-    scrollHandler();
-    function scrollHandler(){
-        var scrolling = false, wDown = false, aDown = false, sDown = false, dDown = false, xScroll = 0, yScroll = 0, xSpeed = 0, ySpeed = 0;
-        window.addEventListener("keydown", keyDown);
-        function keyDown(event){
-            if(event.key === "w" && wDown === false){
-                wDown = true;
-                yScroll += 1;
-            }
-            else if(event.key === "a" && aDown === false){
-                aDown = true;
-                xScroll += 1;
-            }
-            else if(event.key === "s" && sDown === false){
-                sDown = true;
-                yScroll -= 1;
-            }
-            else if(event.key === "d" && dDown === false){
-                dDown = true;
-                xScroll -= 1;
-            }
-            else return;
-            if(!scrolling)
+            window.addEventListener("resize", resize);
+            function resize()
             {
-                scroll();
-                scrolling = true;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                requestRender();
             }
+            resize();
         }
-        window.addEventListener("keyup", keyUp);
-        function keyUp(event){
-            if(event.key === "w"){
-                wDown = false;
-                yScroll -= 1;
-            }
-            else if(event.key === "a"){
-                aDown = false;
-                xScroll -= 1;
-            }
-            else if(event.key === "s"){
-                sDown = false;
-                yScroll += 1;
-            }
-            else if(event.key === "d"){
-                dDown = false;
-                xScroll += 1;
-            }
-            else return;
-            if(!scrolling)
-            {
-                scroll();
-                scrolling = true;
-            }
-        }
-        function scroll(){
-            if(xScroll*xSpeed <= 0) xSpeed = xScroll;
-            else xSpeed += 1/xSpeed;
-            if(yScroll*ySpeed <= 0) ySpeed = yScroll;
-            else ySpeed += 1/ySpeed;
-            if(xSpeed !== 0 || ySpeed !== 0){
-                canvas.context.translate(2*xSpeed*(1/currentScale), 2*ySpeed*(1/currentScale));
-                triggerRender();
-                setTimeout(scroll, 1000/60);
-            }
-            else{
-                scrolling = false;
-            }
-        }
-    }
-    //endregion
+        //endregion
 
 
-    //region scrollHandler method, responds to user input 'WASD".
-    zoomHandler();
-    var currentScale = 1;
-    var baseScale = 64;
-    function zoomHandler(){
-        canvas.context.scale(baseScale, baseScale);
-        window.addEventListener("wheel", wheel);
-        function wheel(wheelEvent){
-            var tempScale;
-            if(wheelEvent.deltaY <= 0) tempScale = currentScale*Math.log(-wheelEvent.deltaY);
-            else tempScale = currentScale/Math.log(wheelEvent.deltaY);
-            tempScale = tempScale.clamp(1/16, 16);
-            canvas.context.scale(tempScale/currentScale, tempScale/currentScale);
-            currentScale = tempScale;
-            console.log(currentScale);
-            triggerRender();
+        //region scrollHandler method, translates the canvas in response to WASD.
+        scrollHandler();
+        function scrollHandler(){
+            var scrolling = false, wDown = false, aDown = false, sDown = false, dDown = false, xScroll = 0, yScroll = 0, xSpeed = 0, ySpeed = 0;
+            window.addEventListener("keydown", keyDown);
+            function keyDown(event){
+                if(event.key === "w" && wDown === false){
+                    wDown = true;
+                    yScroll += 1;
+                }
+                else if(event.key === "a" && aDown === false){
+                    aDown = true;
+                    xScroll += 1;
+                }
+                else if(event.key === "s" && sDown === false){
+                    sDown = true;
+                    yScroll -= 1;
+                }
+                else if(event.key === "d" && dDown === false){
+                    dDown = true;
+                    xScroll -= 1;
+                }
+                else return;
+                if(!scrolling){
+                    scroll();
+                    scrolling = true;
+                }
+            }
+            window.addEventListener("keyup", keyUp);
+            function keyUp(event){
+                if(event.key === "w"){
+                    wDown = false;
+                    yScroll -= 1;
+                }
+                else if(event.key === "a"){
+                    aDown = false;
+                    xScroll -= 1;
+                }
+                else if(event.key === "s"){
+                    sDown = false;
+                    yScroll += 1;
+                }
+                else if(event.key === "d"){
+                    dDown = false;
+                    xScroll += 1;
+                }
+                else return;
+                if(!scrolling){
+                    scroll();
+                    scrolling = true;
+                }
+            }
+            function scroll(){
+                if(xScroll*xSpeed <= 0) xSpeed = xScroll;
+                else xSpeed += 1/xSpeed;
+                if(yScroll*ySpeed <= 0) ySpeed = yScroll;
+                else ySpeed += 1/ySpeed;
+                if(xSpeed !== 0 || ySpeed !== 0){
+                    xOffset += 2*xSpeed/activeScale;
+                    yOffset += 2*ySpeed/activeScale;
+                    requestRender();
+                    window.requestAnimationFrame(scroll);
+
+                }
+                else scrolling = false;
+            }
         }
+        //endregion
+
+
+        //region zoomHandler method, scales the canvas in response to the mouse-wheel
+        zoomHandler();
+        function zoomHandler(){
+            //TODO: Must modify x and y offset to keep screen centered while zooming in or out.
+
+            window.addEventListener("wheel", wheel);
+            function wheel(wheelEvent){
+                var absoluteScale = baseScale*activeScale;
+
+                var deltaScale = (wheelEvent.deltaY > 0)? 1/Math.log(Math.abs(wheelEvent.deltaY)) : Math.log(Math.abs(wheelEvent.deltaY));
+
+                activeScale = (deltaScale*activeScale).clamp(1/16, 16);
+
+                //TODO: Account for base scale.
+                xOffset += xOffset*(deltaScale - 1);
+                yOffset += yOffset*(deltaScale - 1);
+
+                requestRender();
+            }
+        }
+        //endregion
+
     }
     //endregion
 
@@ -261,19 +320,19 @@ engine.Surface = function(name, options){
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
         drawPath: function(path2d, colour){
-            canvas.context.globalAlpha = colour.a/255;
-            canvas.context.strokeStyle = colour.toHex();
-            canvas.context.stroke(path2d);
+            context.globalAlpha = colour.a/255;
+            context.strokeStyle = colour.toHex();
+            context.stroke(path2d);
         },
         fillPath: function(path2d, colour){
-            canvas.context.globalAlpha = colour.a/255;
-            canvas.context.fillStyle = colour.toHex();
-            canvas.context.fill(path2d);
+            context.globalAlpha = colour.a/255;
+            context.fillStyle = colour.toHex();
+            context.fill(path2d);
         },
         renderText: function(x, y, string, colour){
-            canvas.context.globalAlpha = colour.a/255;
-            canvas.context.fillStyle = colour.toHex();
-            canvas.context.fillText(string, x, y);
+            context.globalAlpha = colour.a/255;
+            context.fillStyle = colour.toHex();
+            context.fillText(string, x, y);
         },
         addEventListener: function(type, callback){
             canvas.addEventListener(type, callback);
@@ -331,21 +390,18 @@ engine.Point.inherit(engine.Vector);
 //endregion
 
 engine.guiLayer = new engine.Surface("guiLayer", {zIndex:1});
-var point = new engine.Point(10, 10, engine.guiLayer);
+var point = new engine.Point(0, 0, engine.guiLayer);
 
 
 
 engine.Handle = function(x, y, surface){
     engine.Point.call(this, x, y, surface);
-
-
-    surface.addEventListener()
-
-
+    //TODO: Add event listener for mouse events.
     //Like a point that can be hovered and dragged.
 };
 
 engine.Path = function(){
+    //TODO
     //An array of handles connected by lines.
     //If the line itself is grabbed, create a new handle.
 };
