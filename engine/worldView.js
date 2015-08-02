@@ -60,17 +60,25 @@ engine.WorldView = function(name, options){
     (function eventHandler(){
 
         //region resizeHandler method, resizes the canvas in response to window resizing.
-        (function resizeHandler()
-        {
+        (function resizeHandler(){
+            var resizePending = 0;
             function resize()
             {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 requestRender();
+                resizePending = false;
             }
-            window.addEventListener("resize", resize);
             resize();
-            //window.dispatchEvent("resize");
+            window.addEventListener("resize", function(){
+                resizePending++;
+                window.setTimeout(function(){
+                    resizePending--;
+                    if(resizePending === 0){
+                        resize();
+                    }
+                }, 100);
+            });
         })();
         //endregion
 
