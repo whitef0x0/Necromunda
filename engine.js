@@ -37,8 +37,6 @@ Number.prototype.clamp = function (low, high) {
 var engine = {};
 
 
-
-
 //region Colour constructor.
 engine.Colour = function(r, g, b, a){
     r = r.clamp(0, 255);
@@ -124,77 +122,48 @@ engine.Surface = function(name, options){
 
     // Set true by requestRender(), and set false after each render event.
     var renderRequest = false;
-
-    // Contains a list of object-method pairs to be invoked for rendering.
-    var renderList = [];
-
+    var renderEvent;
 
     //region Initialize the canvas.
-    initialize(name, options);
-    function initialize(name, options){
+    (function initialize(){
         canvas = document.createElement("canvas");
         canvas.id = name;
         canvas.style.zIndex = options.zIndex || 0;
         canvas.colour = options.colour || engine.Colour.white;
         document.body.appendChild(canvas);
         context = canvas.getContext("2d");
-    }
+        renderEvent = new CustomEvent("render" + name);
+    })();
     //endregion
 
+
+
     //region gameLoop, requestRender and triggerRender functions.
-    gameLoop();
-    function gameLoop(){
+
+    (function gameLoop(){
         if(renderRequest){
-            applyTransform();
-            triggerRender();
+            (function applyTransform(){
+                var absoluteScale = baseScale*activeScale;
+                context.setTransform(1, 0, 0, 1, 0, 0);
+                context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));
+                context.scale(absoluteScale, absoluteScale);
+            })();
+            (function triggerRender(){
+                (function clearScreen(){
+                    context.save();
+                    context.setTransform(1, 0, 0, 1, 0, 0);
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.restore();
+                })();
+
+                console.log(!!renderEvent);
+                document.dispatchEvent(renderEvent);
+            })();
             renderRequest = false;
         }
+        //TODO: Make this more robust.
         window.requestAnimationFrame(gameLoop);
-
-        //region applyTransform method.
-        function applyTransform(){
-            var absoluteScale = baseScale*activeScale;
-            context.setTransform(1, 0, 0, 1, 0, 0);
-
-
-
-
-            context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));///(1/2)*(canvas.width/absoluteScale), yOffset - (1/2)*(canvas.height/absoluteScale));
-            context.scale(absoluteScale, absoluteScale);
-            //
-            //
-
-            //region setTransform API
-            //      context.setTransform(a,b,c,d,e,f);
-            // a 	Scales the drawings horizontally
-            // b 	Skews the drawings horizontally
-            // c 	Skews the drawings vertically
-            // d 	Scales the drawings vertically
-            // e 	Moves the the drawings horizontally
-            // f 	Moves the the drawings vertically
-            //endregion
-
-        }
-        //endregion
-
-        //region Trigger render and clearScreen methods.
-        function triggerRender(){
-            clearScreen();
-            for(var i = 0; i < renderList.length; i++){
-                if( typeof(renderList[i].method) === typeof(Function) ){
-                    renderList[i].method.call(renderList[i].object);
-                }
-            }
-            function clearScreen(){
-                context.save();
-                context.setTransform(1, 0, 0, 1, 0, 0);
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.restore();
-            }
-        }
-        //endregion
-
-    }
+    })();
     function requestRender(){ renderRequest = true; }
     //endregion
 
@@ -277,11 +246,10 @@ engine.Surface = function(name, options){
                 if(yScroll*ySpeed <= 0) ySpeed = yScroll;
                 else ySpeed += 1/ySpeed;
                 if(xSpeed !== 0 || ySpeed !== 0){
-                    xOffset += 2*xSpeed/activeScale;
-                    yOffset += 2*ySpeed/activeScale;
+                    xOffset += 2*xSpeed;
+                    yOffset += 2*ySpeed;
                     requestRender();
                     window.requestAnimationFrame(scroll);
-
                 }
                 else scrolling = false;
             }
@@ -292,17 +260,11 @@ engine.Surface = function(name, options){
         //region zoomHandler method, scales the canvas in response to the mouse-wheel
         zoomHandler();
         function zoomHandler(){
-            //TODO: Must modify x and y offset to keep screen centered while zooming in or out.
-
             window.addEventListener("wheel", wheel);
             function wheel(wheelEvent){
                 var absoluteScale = baseScale*activeScale;
-
                 var deltaScale = (wheelEvent.deltaY > 0)? 1/Math.log(Math.abs(wheelEvent.deltaY)) : Math.log(Math.abs(wheelEvent.deltaY));
-
                 activeScale = (deltaScale*activeScale).clamp(1/16, 16);
-
-                //TODO: Account for base scale.
                 xOffset += xOffset*(deltaScale - 1);
                 yOffset += yOffset*(deltaScale - 1);
 
@@ -317,6 +279,7 @@ engine.Surface = function(name, options){
 
     //region The public members returned from the constructor.
     var publicMembers = {
+        get name(){ return canvas.id; },
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
         drawPath: function(path2d, colour){
@@ -336,24 +299,10 @@ engine.Surface = function(name, options){
         },
         addEventListener: function(type, callback){
             canvas.addEventListener(type, callback);
-        },
-        subscribeToRender: function(object, method){
-            renderList.push({object: object, method: method});
-        },
-        unsubscribeToRender: function(object){
-            //TODO
         }
     };
     return publicMembers;
     //endregion
-
-};
-//endregion
-
-
-//region WorldView constructor.
-engine.WorldView = function(name, options){
-
 };
 //endregion
 
@@ -376,21 +325,21 @@ engine.Vector.zero = new engine.Vector(0,0);
 //region Point constructor.
 engine.Point = function(x, y, surface){
     engine.Vector.call(this, x, y);
-
     var radius = 4;
-    this.draw = function()
+    this.surface = (function(){
+        return surface;
+    })();
+    var that = this;
+    function draw()
     {
         var path = new Path2D();
-        path.arc(this.x - radius/2, this.y - radius/2, radius, 0, 2*Math.PI);
-        surface.fillPath(path, engine.Colour.black);
-    };
-    surface.subscribeToRender(this, this.draw);
+        path.arc(that.x - radius/2, that.y - radius/2, radius, 0, 2*Math.PI);
+        that.surface.fillPath(path, engine.Colour.black);
+    }
+    document.addEventListener("render"+surface.name, draw);
 };
 engine.Point.inherit(engine.Vector);
 //endregion
-
-engine.guiLayer = new engine.Surface("guiLayer", {zIndex:1});
-var point = new engine.Point(0, 0, engine.guiLayer);
 
 
 
@@ -407,12 +356,15 @@ engine.Path = function(){
 };
 
 
-function Line(origin, destination){
+engine.Line = function(origin, destination, surface){
     this.origin = origin || Vector.zero;
     this.destination = destination || vector.zero;
+    this.surface = (function(){
+        return surface;
+    })();
 
     this.vector = function(){
-        return new Vector(this.destination.x - this.origin.x, this.destination.y - this.origin.y);
+        return new engine.Vector(this.destination.x - this.origin.x, this.destination.y - this.origin.y);
     };
     this.length = function(){
         return this.vector().magnitude();
@@ -420,9 +372,51 @@ function Line(origin, destination){
     this.unitVector = function(){
         return this.vector().unitVector();
     };
-}
+    var that = this;
+    function draw(){
+        var path = new Path2D();
+        path.moveTo(that.origin.x, that.origin.y);
+
+        path.lineTo(that.destination.x, that.destination.y);
+        that.surface.drawPath(path, engine.Colour.black);
+
+        console.log(that.surface.name);
+        console.log(that.origin);
+    }
+    document.addEventListener("render"+surface.name, draw);
+};
 
 
+engine.Rect = function(origin, dimensions, surface){
+    this.origin = origin || Vector.zero;
+    this.destination = destination || vector.zero;
+    this.surface = (function(){
+        return surface;
+    })();
+    this.vector = function(){
+        return new engine.Vector(this.destination.x - this.origin.x, this.destination.y - this.origin.y);
+    };
+    this.length = function(){
+        return this.vector().magnitude();
+    };
+    this.unitVector = function(){
+        return this.vector().unitVector();
+    };
+    var that = this;
+    function draw(){
+        var path = new Path2D();
+        path.moveTo(that.origin.x, that.origin.y);
+
+        path.lineTo(that.destination.x, that.destination.y);
+        that.surface.drawPath(path, engine.Colour.black);
+
+        console.log(that.surface.name);
+        console.log(that.origin);
+    }
+    document.addEventListener("render"+surface.name, draw);
+};
+
+//region Smurf
 function Combatant(parameters){
     this.character = parameters.character;
     this.position = parameters.position || engine.vector().zero;
@@ -451,3 +445,10 @@ function Combatant(parameters){
 
     }
 }
+//endregion
+
+engine.guiLayer = new engine.Surface("guiLayer", {zIndex:1});
+var point = new engine.Point(0, 0, engine.guiLayer);
+var line = new engine.Line({x:7, y:3}, {x:14, y:12}, engine.guiLayer);
+
+
