@@ -17,13 +17,13 @@ engine.Vector.zero = new engine.Vector(0,0);
 //region Point constructor.
 engine.Point = function(x, y, viewPort){
     engine.Vector.call(this, x, y);
-    var radius = 4;
+    var radius = 0.5;
     this.viewPort = (function(){
         return viewPort;
     })();
     document.addEventListener("render" + this.viewPort.name, function draw(){
         var path = new Path2D();
-        path.arc(this.x - radius/2, this.y - radius/2, radius, 0, 2*Math.PI);
+        path.arc(this.x, this.y, radius, 0, 2*Math.PI);
         this.viewPort.fillPath(path, engine.Colour.black);
     }.bind(this));
 };
@@ -47,7 +47,12 @@ engine.Line = function(origin, destination, viewPort){
     this.viewPort = (function(){
         return viewPort;
     })();
-
+    document.addEventListener("render" + this.viewPort.name, function draw(){
+        var path = new Path2D();
+        path.moveTo(this.origin.x, this.origin.y);
+        path.lineTo(this.destination.x, this.destination.y);
+        this.viewPort.drawPath(path, engine.Colour.black);
+    }.bind(this));
 };
 //endregion
 
