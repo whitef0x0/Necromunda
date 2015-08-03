@@ -18,22 +18,33 @@
         <div id="screen"></div>
 
         <!-- melonJS Library -->
-        <!-- build:js js/app.min.js -->
-        <script type="text/javascript" src="lib/melonJS-2.1.1.js"></script>
+        <!--<script type="text/javascript" src="lib/melonJS-0.9.10.js"></script>-->
+        <script type="text/javascript" src="lib/melonJS-1.0.2.js"></script>
 
         <!-- Plugin(s) -->
-        <script type="text/javascript" src="lib/plugins/debug/debugPanel.js"></script>
+        <script type="text/javascript" src="lib/plugins/debugPanel.js"></script>
 
         <!-- Game Scripts -->
         <script type="text/javascript" src="js/game.js"></script>
-        <script type="text/javascript" src="build/js/resources.js"></script>
+        <script type="text/javascript" src="js/resources.js"></script>
 
-        <script type="text/javascript" src="js/entities/entities.js"></script>
+        <script type="text/javascript" src="js/screens/custominit.js"></script>
+        <script type="text/javascript" src="js/screens/title.js"></script>
+        <script type="text/javascript" src="js/screens/load.js"></script>
+        <script type="text/javascript" src="js/screens/play.js"></script>
+        <script type="text/javascript" src="js/screens/puzzle.js"></script>
+        <script type="text/javascript" src="js/screens/death.js"></script>
+        <script type="text/javascript" src="js/screens/credits.js"></script>        
+
+        <script type="text/javascript" src="js/entities/overworldentities.js"></script>
         <script type="text/javascript" src="js/entities/HUD.js"></script>
 
-        <script type="text/javascript" src="js/screens/title.js"></script>
-        <script type="text/javascript" src="js/screens/play.js"></script>
-        <!-- /build -->
+        <script type="text/javascript" src="js/entities/puzzleentities.js"></script>
+        <script type="text/javascript" src="js/entities/puzzlepipes.js"></script>
+        <script type="text/javascript" src="js/entities/puzzleenemies.js"></script>
+        <script type="text/javascript" src="js/entities/puzzletraps.js"></script>
+        <script type="text/javascript" src="js/entities/puzzleHUD.js"></script>
+
         <!-- Bootstrap & Mobile optimization tricks -->
         <script type="text/javascript">
             window.onReady(function onReady() {

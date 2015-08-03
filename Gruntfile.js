@@ -46,6 +46,23 @@ module.exports = function(grunt) {
       dist: ['build/','bin/'],
     },
 
+    jshint: {
+      all: {
+        src: watchFiles.clientJS.concat(watchFiles.serverJS),
+        options: {
+          jshintrc: true
+        }
+      }
+    },
+    csslint: {
+      options: {
+        csslintrc: '.csslintrc'
+      },
+      all: {
+        src: watchFiles.clientCSS
+      }
+    },
+
     processhtml: {
       dist: {
         options: {
@@ -110,43 +127,30 @@ module.exports = function(grunt) {
       rebuild: false,
     },
 
-    asar: {
-      dist: {
-        cwd: 'build',
-        src: ['**/*', '!js/app.js'],
-        expand: true,
-        dest: 'bin/' + (
-          process.platform === 'darwin'
-            ? 'Electron.app/Contents/Resources/'
-            : 'resources/'
-        ) + 'app.asar'
-      },
-    },
-
-    resources: {
-      dist: {
-        options: {
-          dest: 'build/js/resources.js',
-          varname: 'game.resources',
-        },
-        files: [{
-          src: ['data/bgm/**/*', 'data/sfx/**/*'],
-          type: 'audio'
-        },{
-          src: ['data/img/**/*.png'],
-          type: 'image'
-        },{
-          src: ['data/img/**/*.json'],
-          type: 'json'
-        },{
-          src: ['data/map/**/*.tmx', 'data/map/**/*.json'],
-          type: 'tmx'
-        },{
-          src: ['data/map/**/*.tsx'],
-          type: 'tsx'
-        }]
-      }
-    },
+    // resources: {
+    //   dist: {
+    //     options: {
+    //       dest: 'build/js/resources.js',
+    //       varname: 'game.resources',
+    //     },
+    //     files: [{
+    //       src: ['data/bgm/**/*', 'data/sfx/**/*'],
+    //       type: 'audio'
+    //     },{
+    //       src: ['data/img/**/*.png'],
+    //       type: 'image'
+    //     },{
+    //       src: ['data/img/**/*.json'],
+    //       type: 'json'
+    //     },{
+    //       src: ['data/map/**/*.tmx', 'data/map/**/*.json'],
+    //       type: 'tmx'
+    //     },{
+    //       src: ['data/map/**/*.tsx'],
+    //       type: 'tsx'
+    //     }]
+    //   }
+    // },
 
     watch: {
       resources: {
