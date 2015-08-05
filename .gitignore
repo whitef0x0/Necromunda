@@ -1,8 +1,10 @@
+### Bower and NPM ###
 bin
 build
 .DS_Store
 node_modules/
-=======
+lib/
+
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, WebStorm
 

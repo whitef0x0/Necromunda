@@ -3,24 +3,19 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     concat: {
-      dist: {
+      dev: {
         src: [
-          'lib/melonJS-<%= pkg.version %>.js',
-          'lib/plugins/*.js',
-          'js/game.js',
-          'build/js/resources.js',
-          'js/**/*.js',
+          'lib/*/*.js',
+          'engine/*.js',
+          'gameScript/*.js',
         ],
         dest: 'build/js/app.js'
       }
     },
 
     copy: {
-      dist: {
+      prod: {
         files: [{
-          src: 'index.css',
-          dest: 'build/index.css'
-        },{
           src: 'main.js',
           dest: 'build/main.js'
         },{
@@ -29,73 +24,12 @@ module.exports = function(grunt) {
         },{
           src: 'package.json',
           dest: 'build/package.json'
-        },{
-          src: 'data/**/*',
-          dest: 'build/',
-          expand: true
-        },{
-          src: 'icons/*',
-          dest: 'build/',
-          expand: true
         }]
       }
     },
 
     clean: {
-      app: ['build/js/app.js'],
-      dist: ['build/','bin/'],
-    },
-
-    jshint: {
-      all: {
-        src: watchFiles.clientJS.concat(watchFiles.serverJS),
-        options: {
-          jshintrc: true
-        }
-      }
-    },
-    csslint: {
-      options: {
-        csslintrc: '.csslintrc'
-      },
-      all: {
-        src: watchFiles.clientCSS
-      }
-    },
-
-    processhtml: {
-      dist: {
-        options: {
-          process: true,
-          data: {
-            title: '<%= pkg.name %>',
-          }
-        },
-        files: {
-          'build/index.html': ['index.html']
-        }
-      }
-    },
-
-    replace : {
-      dist : {
-        options : {
-          usePrefix : false,
-          force : true,
-          patterns : [
-            {
-              match : /this\._super\(\s*([\w\.]+)\s*,\s*["'](\w+)["']\s*(,\s*)?/g,
-              replacement : '$1.prototype.$2.apply(this$3'
-            },
-          ],
-        },
-        files : [
-          {
-            src : [ 'build/js/app.js' ],
-            dest : 'build/js/app.js'
-          }
-        ]
-      },
+      prod: ['build/js/app.js'],
     },
 
     uglify: {
@@ -103,7 +37,7 @@ module.exports = function(grunt) {
         report: 'min',
         preserveComments: 'some'
       },
-      dist: {
+      prod: {
         files: {
           'build/js/app.min.js': [
             'build/js/app.js'
@@ -121,46 +55,38 @@ module.exports = function(grunt) {
       }
     },
 
-    'download-electron': {
-      version: '0.28.3',
-      outputDir: 'bin',
-      rebuild: false,
-    },
-
-    // resources: {
-    //   dist: {
-    //     options: {
-    //       dest: 'build/js/resources.js',
-    //       varname: 'game.resources',
-    //     },
-    //     files: [{
-    //       src: ['data/bgm/**/*', 'data/sfx/**/*'],
-    //       type: 'audio'
-    //     },{
-    //       src: ['data/img/**/*.png'],
-    //       type: 'image'
-    //     },{
-    //       src: ['data/img/**/*.json'],
-    //       type: 'json'
-    //     },{
-    //       src: ['data/map/**/*.tmx', 'data/map/**/*.json'],
-    //       type: 'tmx'
-    //     },{
-    //       src: ['data/map/**/*.tsx'],
-    //       type: 'tsx'
-    //     }]
-    //   }
-    // },
-
     watch: {
-      resources: {
-        files: ['data/**/*'],
-        tasks: ['resources'],
+      dev: {
+        files: ['engine/*.js', 'gameScript/*.js', 'lib/*/*'],
+        options: {
+          spawn: false,
+        },
+      },
+      prod: {
+        files: ['build/js/*.js', 'lib/*/*'],
         options: {
           spawn: false,
         },
       },
     },
+
+    wiredep: {
+
+      dev: {
+
+        src: [
+          'index.html',
+        ],
+
+        options: {
+          html: {
+            replace: {
+              js: '<script type="text/javascript" src="{{filePath}}"></script>',
+            }
+          },
+        }
+      }
+    }
 
   });
 
@@ -169,24 +95,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-processhtml');
-  grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-download-electron');
-  grunt.loadNpmTasks('grunt-asar');
+  grunt.loadNpmTasks('grunt-wiredep');
 
-  // Custom Tasks
-  grunt.loadTasks('tasks');
-
-  grunt.registerTask('default', [
-    'resources',
+  grunt.registerTask('build', [
     'concat',
-    'replace',
     'uglify',
     'copy',
-    'processhtml',
-    'clean:app',
+    'clean',
   ]);
-  grunt.registerTask('dist', ['default', 'download-electron', 'asar']);
-  grunt.registerTask('serve', ['resources', 'connect', 'watch']);
+  // grunt.registerTask('dist', ['default']);
+  grunt.registerTask('dev', ['connect', 'watch:dev']);
+  grunt.registerTask('prod', ['connect', 'watch:prod']);
 }
