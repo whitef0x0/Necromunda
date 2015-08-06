@@ -1,7 +1,7 @@
 
 function Combatant(parameters){
     this.character = parameters.character;
-    this.position = parameters.position || engine.vector().zero;
+    this.position = parameters.position || eng.vector().zero;
     this.speed = parameters.speed || 0;
     this.path = parameters.path || null;
 

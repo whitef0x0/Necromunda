@@ -71,8 +71,8 @@ eng.Colour.black         = new eng.Colour(0, 0, 0, 255);
 
 
 
-//eng.Colour.gui = {};
-//eng.Colour.gui.base          = eng.ColourFromHSV(0, 0, 0.2, 1);
+eng.Colour.gui = {};
+eng.Colour.gui.base          = eng.ColourFromHSV(0, 0, 0.2, 1);
 
 eng.Colour.world.background  = eng.ColourFromHSV(0, 0, 0.16, 1);
 eng.Colour.world.passive     = eng.ColourFromHSV(0, 0, 0.64, 1);

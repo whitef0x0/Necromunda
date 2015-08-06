@@ -1,6 +1,6 @@
 
 //region WorldView constructor (auto-resizing).
-engine.WorldView = function(name, options){
+eng.WorldView = function(name, options){
 
     // References to the DOM elements:
     var canvas, context;
@@ -21,7 +21,7 @@ engine.WorldView = function(name, options){
         canvas = document.createElement("canvas");
         canvas.id = name;
         canvas.style.zIndex = options.zIndex || 0;
-        canvas.colour = options.colour || engine.Colour.white;
+        canvas.colour = options.colour || eng.Colour.white;
         document.body.appendChild(canvas);
         context = canvas.getContext("2d");
     })();
@@ -61,25 +61,24 @@ engine.WorldView = function(name, options){
 
         (function mouseEvents(){
 
-            function dispatchMouseEventWorldView(eventName, rawMouseEvent){
-                var absoluteScale = baseScale*activeScale;
-
+            //Append world coordinates and dispatch the event.
+            function worldSpaceMouseEvent(eventName, rawMouseEvent){
                 var mouseEvent = new MouseEvent(eventName + name);
-                mouseEvent.worldX = rawMouseEvent.clientX;
-                mouseEvent.worldY = rawMouseEvent.clientY;
-                mouseEvent.worldX -= xOffset + canvas.width/2;
-                mouseEvent.worldY -= yOffset + canvas.height/2;
-                mouseEvent.worldX /= absoluteScale;
-                mouseEvent.worldY /= absoluteScale;
+
+                (function appendWorldCoordinates(){
+                    var absoluteScale = baseScale*activeScale;
+                    mouseEvent.worldX = (rawMouseEvent.clientX - (xOffset + canvas.width/2))/absoluteScale;
+                    mouseEvent.worldY = (rawMouseEvent.clientY - (YOffset + canvas.height/2))/absoluteScale;
+                })();
 
                 document.dispatchEvent(mouseEvent);
             }
-
             document.addEventListener("mousemove", function(mouseEvent){
-                dispatchMouseEventWorldView("mousemove", mouseEvent);
-
-
+                worldSpaceMouseEvent("mousemove", mouseEvent);
             });
+
+            document.addEventListener()
+
         })();
 
 

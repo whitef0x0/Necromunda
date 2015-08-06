@@ -27,5 +27,5 @@ Number.prototype.clamp = function (low, high) {
 //endregion
 
 
-var engine = {};
+var eng = {};
 
