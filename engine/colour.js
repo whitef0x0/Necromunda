@@ -1,5 +1,5 @@
 //region Colour constructor.
-engine.Colour = function(r, g, b, a){
+eng.Colour = function(r, g, b, a){
     r = r.clamp(0, 255);
     g = g.clamp(0, 255);
     b = b.clamp(0, 255);
@@ -25,7 +25,7 @@ engine.Colour = function(r, g, b, a){
 
 
 //region RGBFromHSV function
-engine.Colour.RGBFromHSV = function(h, s, v, a){
+eng.ColourFromHSV = function(h, s, v, a){
     h = h.clamp(0, 1);
     s = s.clamp(0, 1);
     v = v.clamp(0, 1);
@@ -58,12 +58,66 @@ engine.Colour.RGBFromHSV = function(h, s, v, a){
     var rgb = HSVtoRGB(h, s, v);
     a = Math.round(a * 255);
 
-    return new Colour(rgb.r, rgb.g, rgb.b, a);
+    eng.Colour.call(this, rgb.r, rgb.g, rgb.b, a);
+
 };
 //endregion
 
 //region Static Colour instances.
-engine.Colour.clear = new engine.Colour(0, 0, 0, 0);
-engine.Colour.white = new engine.Colour(255, 255, 255, 255);
-engine.Colour.black = new engine.Colour(0, 0, 0, 255);
+eng.Colour.clear         = new eng.Colour(0, 0, 0, 0);
+eng.Colour.white         = new eng.Colour(255, 255, 255, 255);
+eng.Colour.black         = new eng.Colour(0, 0, 0, 255);
+
+
+
+
+eng.Colour.gui = {};
+eng.Colour.gui.base          = eng.ColourFromHSV(0, 0, 0.2, 1);
+
+eng.Colour.world.background  = eng.ColourFromHSV(0, 0, 0.16, 1);
+eng.Colour.world.passive     = eng.ColourFromHSV(0, 0, 0.64, 1);
+eng.Colour.world.focused     = eng.ColourFromHSV(0, 0, 0.80, 1);
+eng.Colour.world.drag        = eng.ColourFromHSV(0, 0, 0.96, 1);
+
+
+/*
+case Colours.Base:
+{
+    return HSVToRGB(0f, 0f, 0.20f);
+}
+case Colours.Control:
+{
+    return HSVToRGB(0f, 0f, 0.24f);;
+}
+case Colours.ControlHighlight:
+{
+    return HSVToRGB(0f, 0f, 0.28f);
+}
+case Colours.ControlToggleHighlight:
+{
+    return HSVToRGB(0f, 0f, 0.32f);
+}
+case Colours.ControlPressedA:
+{
+    return HSVToRGB(0.52f, 0.24f, 0.404f);
+}
+case Colours.ControlPressedB:
+{
+    return HSVToRGB(0.56f, 0.48f, 0.40f);
+}
+case Colours.ControlPressedC:
+{
+    return HSVToRGB(0.56f, 0.48f,0.48f);
+}
+case Colours.Text:
+{
+    return HSVToRGB(0f, 0f, 1.0f);
+}
+case Colours.DisabledText:
+{
+    return HSVToRGB(0f, 0f, 0.72f);
+}
+*/
+
+
 //endregion
