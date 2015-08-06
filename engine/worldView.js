@@ -9,6 +9,11 @@ eng.WorldView = function(name, options){
     var xOffset = 0, yOffset = 0;
     var baseScale = 64; //Canvas unites per game units.
     var activeScale = 1;
+
+    // Mouse data from the most recent mouse event.
+    var mouseData;
+
+    // Line thickness correction (helps lines remain visible while zoomed out).
     var lineWidthScale = 1; // Set to => 1/Math.sqrt(activeScale) in zoomHandler.
 
     // Set true by requestRender(), and set false after each render event.
@@ -29,15 +34,9 @@ eng.WorldView = function(name, options){
 
 
     //region gameLoop, requestRender and triggerRender functions.
-    (function gameLoop(){
+    (function initGameLoop(){
         var renderEvent = new CustomEvent("render" + name);
-        if(renderRequest){
-            (function applyTransform(){
-                var absoluteScale = baseScale*activeScale;
-                context.setTransform(1, 0, 0, 1, 0, 0);
-                context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));
-                context.scale(absoluteScale, absoluteScale);
-            })();
+        (function gameLoop(){
             (function triggerRender(){
                 (function clearScreen(){
                     context.save();
@@ -45,14 +44,20 @@ eng.WorldView = function(name, options){
                     context.clearRect(0, 0, canvas.width, canvas.height);
                     context.restore();
                 })();
+                (function applyTransform(){
+                    var absoluteScale = baseScale*activeScale;
+                    context.setTransform(1, 0, 0, 1, 0, 0);
+                    context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));
+                    context.scale(absoluteScale, absoluteScale);
+                })();
                 document.dispatchEvent(renderEvent);
             })();
             renderRequest = false;
-        }
-        //TODO: Make this more robust.
-        window.requestAnimationFrame(gameLoop);
+            //TODO: Make this more robust.
+            window.requestAnimationFrame(gameLoop);
+        })();
     })();
-    function requestRender(){ renderRequest = true; }
+
     //endregion
 
 
@@ -61,24 +66,24 @@ eng.WorldView = function(name, options){
 
         (function mouseEvents(){
 
-            //Append world coordinates and dispatch the event.
-            function worldSpaceMouseEvent(eventName, rawMouseEvent){
-                var mouseEvent = new MouseEvent(eventName + name);
+            var mouseMove   = new CustomEvent("mousemove" + name);
+            var mouseDown   = new CustomEvent("mousedown" + name);
+            var mouseUp     = new CustomEvent("mouseup" + name);
 
-                (function appendWorldCoordinates(){
-                    var absoluteScale = baseScale*activeScale;
-                    mouseEvent.worldX = (rawMouseEvent.clientX - (xOffset + canvas.width/2))/absoluteScale;
-                    mouseEvent.worldY = (rawMouseEvent.clientY - (YOffset + canvas.height/2))/absoluteScale;
-                })();
-
-                document.dispatchEvent(mouseEvent);
-            }
             document.addEventListener("mousemove", function(mouseEvent){
-                worldSpaceMouseEvent("mousemove", mouseEvent);
+                mouseData = mouseEvent;
+                document.dispatchEvent(mouseMove);
             });
 
-            document.addEventListener()
+            document.addEventListener("mousedown", function(mouseEvent){
+                mouseData = mouseEvent;
+                document.dispatchEvent(mouseDown);
+            });
 
+            document.addEventListener("mouseup", function(mouseEvent){
+                mouseData = mouseEvent;
+                document.dispatchEvent(mouseUp);
+            });
         })();
 
 
@@ -180,6 +185,9 @@ eng.WorldView = function(name, options){
         get name(){ return canvas.id; },
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
+        isMouseInPath: function(path2d){
+            return context.isPointInPath(path2d, mouseWorldX, mouseWorldY);
+        },
         drawPath: function(path2d, colour, lineWidth){
             context.globalAlpha = colour.a/255;
             context.strokeStyle = colour.toHex();

@@ -17,30 +17,35 @@ eng.Vector.zero = new eng.Vector(0, 0);
 //region Point constructor.
 eng.Point = function(x, y, viewPort){
     eng.Vector.call(this, x, y);
-    var radius = 0.5;
+    this.radius = 0.5;
     this.colour = eng.Colour.world.passive;
     this.viewPort = (function(){
         return viewPort;
     })();
     document.addEventListener("render" + this.viewPort.name, function draw(){
         var path = new Path2D();
-        path.arc(this.x, this.y, radius, 0, 2*Math.PI);
+        path.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
         this.viewPort.fillPath(path, this.colour);
     }.bind(this));
 };
 //endregion
 
 
-//region Handle constructor.
-eng.Handle = function(x, y, viewPort){
+//region A point that interacts with the mouse, and can be dragged
+eng.ControlPoint = function(x, y, viewPort){
     eng.Point.call(this, x, y, viewPort);
 
 
+    document.addEventListener("mousemove" + this.viewPort.name, function(){
+        var path = new Path2D();
+        //path.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
+        path.rect(this.x - 0.5, this.y - 0.5, 1, 1);
 
+        if(viewPort.isMouseInPath(path)) this.colour = eng.Colour.world.focused;
+        else this.colour = eng.Colour.world.passive;
 
+    }.bind(this));
 
-    //TODO: Add event listener for mouse events.
-    //Like a point that can be hovered and dragged.
 };
 //endregion
 
