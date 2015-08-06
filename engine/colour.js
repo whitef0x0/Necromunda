@@ -58,8 +58,7 @@ eng.ColourFromHSV = function(h, s, v, a){
     var rgb = HSVtoRGB(h, s, v);
     a = Math.round(a * 255);
 
-    eng.Colour.call(this, rgb.r, rgb.g, rgb.b, a);
-
+   return new eng.Colour(rgb.r, rgb.g, rgb.b, a);
 };
 //endregion
 
@@ -74,6 +73,7 @@ eng.Colour.black         = new eng.Colour(0, 0, 0, 255);
 eng.Colour.gui = {};
 eng.Colour.gui.base          = eng.ColourFromHSV(0, 0, 0.2, 1);
 
+eng.Colour.world = {};
 eng.Colour.world.background  = eng.ColourFromHSV(0, 0, 0.16, 1);
 eng.Colour.world.passive     = eng.ColourFromHSV(0, 0, 0.64, 1);
 eng.Colour.world.focused     = eng.ColourFromHSV(0, 0, 0.80, 1);
