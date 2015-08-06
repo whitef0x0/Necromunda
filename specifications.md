@@ -1,6 +1,7 @@
 Necromunda Specifications:
+==========================
 	
-	Campaign overview:
+	###Campaign overview:
 		- The game is based on the Necromunda board game by GamesWorkshop.
 			~ However, the game will deviate from this framework in many significant respects.
 		
@@ -35,7 +36,7 @@ Necromunda Specifications:
 			~ Players can use their revenue to purchase new equipment.
 			
 	
-	Skirmish overview:
+	###Skirmish overview:
 		- A skirmish is played between two opposing players, each of whom has a team of fighters.
 		
 		- A skirmish is played on a randomly generated map, consisting of randomly placed and rotated buildings and structures.
