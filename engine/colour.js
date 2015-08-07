@@ -64,6 +64,7 @@ eng.ColourFromHSV = function(h, s, v, a){
 
 //region Static Colour instances.
 eng.Colour.clear         = new eng.Colour(0, 0, 0, 0);
+eng.Colour.red         = new eng.Colour(255, 0, 0, 255);
 eng.Colour.white         = new eng.Colour(255, 255, 255, 255);
 eng.Colour.black         = new eng.Colour(0, 0, 0, 255);
 
