@@ -9,6 +9,7 @@ eng.WorldView = function(name, options){
     var xOffset = 0, yOffset = 0;
     var baseScale = 64; //Canvas unites per game units.
     var activeScale = 1;
+    function getAbsoluteScale(){ return baseScale*activeScale; }
 
     // Mouse data from the most recent mouse event.
     var mouseData;
@@ -39,16 +40,12 @@ eng.WorldView = function(name, options){
         (function gameLoop(){
             (function triggerRender(){
                 (function clearScreen(){
-                    context.save();
                     context.setTransform(1, 0, 0, 1, 0, 0);
                     context.clearRect(0, 0, canvas.width, canvas.height);
-                    context.restore();
                 })();
                 (function applyTransform(){
-                    var absoluteScale = baseScale*activeScale;
-                    context.setTransform(1, 0, 0, 1, 0, 0);
                     context.translate(xOffset + (1/2)*(canvas.width), yOffset + (1/2)*(canvas.height));
-                    context.scale(absoluteScale, absoluteScale);
+                    context.scale(getAbsoluteScale(), getAbsoluteScale());
                 })();
                 document.dispatchEvent(renderEvent);
             })();
@@ -71,6 +68,8 @@ eng.WorldView = function(name, options){
             var mouseUp     = new CustomEvent("mouseup" + name);
 
             document.addEventListener("mousemove", function(mouseEvent){
+                mouseMove.deltaX = (mouseEvent.clientX - mouseData.clientX)/getAbsoluteScale();
+                mouseMove.deltaY = (mouseEvent.clientY - mouseData.clientY)/getAbsoluteScale();
                 mouseData = mouseEvent;
                 document.dispatchEvent(mouseMove);
             });
@@ -93,13 +92,11 @@ eng.WorldView = function(name, options){
             //region resizeHandler method, resizes the canvas in response to window resizing.
             (function resizeHandler(){
                 var resizeEventCount = 0;
-                function resize()
-                {
+                function resize(){
                     context.save();
                     canvas.width = window.innerWidth;
                     canvas.height = window.innerHeight;
                     context.restore();
-                    requestRender();
                 }
                 resize();
                 // Counter causes the canvas to resize only once per series of resize events, after a cooldown of 100ms.
@@ -148,7 +145,6 @@ eng.WorldView = function(name, options){
                     if(xSpeed !== 0 || ySpeed !== 0){
                         xOffset += 2*xSpeed;
                         yOffset += 2*ySpeed;
-                        requestRender();
                         window.requestAnimationFrame(scroll);
                         scrolling = true;
                     }
@@ -167,7 +163,6 @@ eng.WorldView = function(name, options){
                     yOffset += yOffset*( (tempScale/activeScale) - 1);
                     activeScale = tempScale;
                     lineWidthScale = 1/Math.sqrt(activeScale);
-                    requestRender();
                 });
             })();
             //endregion
@@ -186,7 +181,7 @@ eng.WorldView = function(name, options){
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
         isMouseInPath: function(path2d){
-            return context.isPointInPath(path2d, mouseWorldX, mouseWorldY);
+            return context.isPointInPath(path2d, mouseData.clientX, mouseData.clientY);
         },
         drawPath: function(path2d, colour, lineWidth){
             context.globalAlpha = colour.a/255;

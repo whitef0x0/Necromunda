@@ -35,15 +35,41 @@ eng.Point = function(x, y, viewPort){
 eng.ControlPoint = function(x, y, viewPort){
     eng.Point.call(this, x, y, viewPort);
 
+    var mouseOver = false;
+    var mouseDrag = false;
 
-    document.addEventListener("mousemove" + this.viewPort.name, function(){
+    document.addEventListener("mousemove" + this.viewPort.name, function(mouseEvent){
         var path = new Path2D();
-        //path.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
         path.rect(this.x - 0.5, this.y - 0.5, 1, 1);
 
-        if(viewPort.isMouseInPath(path)) this.colour = eng.Colour.world.focused;
-        else this.colour = eng.Colour.world.passive;
+        if(mouseDrag){
+            this.x += mouseEvent.deltaX;
+            this.y += mouseEvent.deltaY;
+        }
+        else{
+            if(viewPort.isMouseInPath(path)){
+                this.colour = eng.Colour.world.focused;
+                mouseOver = true;
+            }
+            else{
+                this.colour = eng.Colour.world.passive;
+                mouseOver = false;
+            }
+        }
+    }.bind(this));
 
+    document.addEventListener("mousedown" + this.viewPort.name, function(){
+        if(mouseOver){
+            this.colour = eng.Colour.world.drag;
+            mouseDrag = true;
+        }
+    }.bind(this));
+
+    document.addEventListener("mouseup" + this.viewPort.name, function(){
+        if(mouseOver){
+            this.colour = eng.Colour.world.focused;
+            mouseDrag = false;
+        }
     }.bind(this));
 
 };
