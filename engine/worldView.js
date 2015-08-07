@@ -46,6 +46,10 @@ eng.WorldView = function(name, options){
             var mouseUp = new CustomEvent("mouseup" + name);
             document.addEventListener("mouseover", function(mouseEvent){
                 mouseData = mouseEvent;
+<<<<<<< HEAD
+=======
+                document.dispatchEvent(mouseMove);
+>>>>>>> df833fe77931bbf9ca9c765dee81b8594a89ee07
             });
             document.addEventListener("mousemove", function(mouseEvent){
                 mouseMove.deltaX = (mouseEvent.clientX - mouseData.clientX)/getAbsoluteScale();
