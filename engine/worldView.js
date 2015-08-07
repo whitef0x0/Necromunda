@@ -14,7 +14,7 @@ eng.WorldView = function(name, options){
     // Caches prior mouse data.
     var mouseData;
 
-    // Line thickness correction (helps lines remain visible while zoomed out).
+    // Line thickness correction (helps pathLines remain visible while zoomed out).
     var lineWidthScale = 1; // Set to => 1/Math.sqrt(activeScale) in zoomHandler.
 
     // Set true by requestRender(), and set false after each render event.
@@ -197,6 +197,7 @@ eng.WorldView = function(name, options){
         get name(){ return canvas.id; },
         get width(){ return canvas.width; },
         get height(){ return canvas.height; },
+        get lineWidthScale(){ return lineWidthScale},
         isMouseInPath: function(path2d){
             return context.isPointInPath(path2d, mouseData.clientX, mouseData.clientY);
         },
