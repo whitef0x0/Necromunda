@@ -1,8 +1,8 @@
 define(function () {
 
-    Number.prototype.toHex = function () {
-        return "0123456789ABCDEF".charAt((this - (this % 16)) >> 4) + "0123456789ABCDEF".charAt(this % 16);
-    };
+    // Number.prototype.toHex = function () {
+    //     return "0123456789ABCDEF".charAt((this - (this % 16)) >> 4) + "0123456789ABCDEF".charAt(this % 16);
+    // };
     Number.prototype.clamp = function (low, high) {
         return this < low ? low : this > high ? high : +this;
     };
@@ -27,7 +27,7 @@ define(function () {
             set a(value){ a = value.clamp(0, 255); },
 
             toHex: function (){
-                return "#" + r.toHex() + g.toHex() + b.toHex();
+                return "#" + r.toString(16) + g.toString(16) + b.toString(16); // r.toHex() + g.toHex() + b.toHex();
             }
         };
     };

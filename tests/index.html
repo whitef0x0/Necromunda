@@ -13,20 +13,42 @@ break anything with or without it. -->
 </div>
 
 <!-- We need to insert our testing dependencies here -->
-<script src="../lib/should/should.js"></script>
+<!-- <script src="../lib/should/should.js"></script>
+ -->
 <script src="../lib/mocha/mocha.js"></script>
+<script type="text/javascript" src="../lib/requirejs/require.js"></script>
+<!--
+    Since we are in the "test" directory, not in the standard
+    "js" directory, we need to define the path prefix' for the
+    RequireJS modules so that the modules can be found from the
+    tests running in the Spec directory.
+-->
+<script type="text/javascript">
+    requirejs.config({
+	    baseUrl: '../lib/requirejs/',
+	    paths: {
+	        engine: '../../engine',
+	        should: '../should/should',
 
-<!-- We will using BDD-style assertions. See mocha documentation if you want more info about this line -->
-<script>//mocha.setup('bdd');</script>
 
-<!-- The source file we will be testing! Don't forget the data-cover attribute so blanket will know what file will need to be instrumented for coverage. -->
-<script type="text/javascript" src="engine/engine.js" ></script>
-<script type="text/javascript" src="engine/colour.js" ></script>
-<script type="text/javascript" src="engine/worldView.js" ></script>
-<script type="text/javascript" src="engine/geometricFigures.js" ></script>
+	    }
+	});
+
+	//Load our tests
+	require(["should"], function (should) {
+		mocha.setup("bdd");
+		require(["tests.js"], function () {
+			mocha.run();
+		});
+	});
+</script>
+
+<!-- <script src="../node_modules/grunt-blanket-mocha/node_modules/blanket/dist/mocha/blanket_mocha.js"></script>
+<script src="../node_modules/grunt-blanket-mocha/support/mocha-blanket.js" data-cover-only="../engine/"></script> -->
+
 
 <!-- Our test suite needs to be after the source file, of course -->
-<script src="engine.test.js"></script>
+<!-- <script src="engine.test.js"></script> -->
 
 <script>
 // For blanket add coverage in our mocha CLI tests (node environment),
@@ -34,7 +56,7 @@ break anything with or without it. -->
 if (window.PHANTOMJS) {
     blanket.options("reporter", "../node_modules/grunt-blanket-mocha/support/grunt-reporter.js");
 }
-// If we're in in the browser
+// // If we're in in the browser
 else {
     mocha.run();
 }

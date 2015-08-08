@@ -32,10 +32,10 @@ define(function (require) {
     Geo.Point = function(viewPort, x, y, radius, colour ){
         //Throw error if x or y or radius are not integers 
         if (x !== parseFloat(x, 10) || y !== parseFloat(y, 10)){
-            throw new Error('x, y and radius of Point must be integers');
+            throw new Error('x, y of Point must be integers');
         }
         if (radius !== parseFloat(radius, 10)){
-            throw new Error('radius of Point must be an float');
+            throw new Error('radius of Point must be an integer');
         }
         if (radius < 0){
             throw new Error('radius of Point must be greater than 0');
