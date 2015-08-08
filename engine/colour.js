@@ -1,14 +1,5 @@
 define(function () {
 
-    //region Math and number related functions and methods.
-    // Number.prototype.toHex = function () {
-    //     return "0123456789ABCDEF".charAt((this - (this % 16)) >> 4) + "0123456789ABCDEF".charAt(this % 16);
-    // };
-    Number.prototype.clamp = function (low, high) {
-        return this < low ? low : this > high ? high : +this;
-    };
-    //end region
-
     //region Colour constructor.
     var Colour = function(r, g, b, a){
         r = r.clamp(0, 255);
