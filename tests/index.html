@@ -16,6 +16,7 @@ break anything with or without it. -->
 <!-- <script src="../lib/should/should.js"></script>
  -->
 <script src="../lib/mocha/mocha.js"></script>
+<script src="../lib/should/should.js"></script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
 <!--
     Since we are in the "test" directory, not in the standard
@@ -28,19 +29,19 @@ break anything with or without it. -->
 	    baseUrl: '../lib/requirejs/',
 	    paths: {
 	        engine: '../../engine',
-	        should: '../should/should',
+	        // should: '../should/should',
 
 
 	    }
 	});
 
 	//Load our tests
-	require(["should"], function (should) {
+	// require(["should"], function (should) {
 		mocha.setup("bdd");
 		require(["tests.js"], function () {
 			mocha.run();
 		});
-	});
+	// });
 </script>
 
 <!-- <script src="../node_modules/grunt-blanket-mocha/node_modules/blanket/dist/mocha/blanket_mocha.js"></script>
