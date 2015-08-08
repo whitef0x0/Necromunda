@@ -1,125 +1,91 @@
-//region Colour constructor.
-eng.Colour = function(r, g, b, a){
-    r = r.clamp(0, 255);
-    g = g.clamp(0, 255);
-    b = b.clamp(0, 255);
-    a = a.clamp(0, 255);
+define(function () {
 
-    //Public members
-    //DAVID: TODO: this syntax is VERYYYYY sketchy
-    return {
-        get r()     { return r; },
-        set r(value){ r = value.clamp(0, 255); },
-        get g()     { return g; },
-        set g(value){ g = value.clamp(0, 255); },
-        get b()     { return b; },
-        set b(value){ b = value.clamp(0, 255); },
-        get a()     { return a; },
-        set a(value){ a = value.clamp(0, 255); },
-
-        toHex: function (){
-            return "#" + r.toHex() + g.toHex() + b.toHex();
-        }
+    Number.prototype.toHex = function () {
+        return "0123456789ABCDEF".charAt((this - (this % 16)) >> 4) + "0123456789ABCDEF".charAt(this % 16);
     };
-};
-//endregion
+    Number.prototype.clamp = function (low, high) {
+        return this < low ? low : this > high ? high : +this;
+    };
 
+    //region Colour constructor.
+    var Colour = function(r, g, b, a){
+        r = r.clamp(0, 255);
+        g = g.clamp(0, 255);
+        b = b.clamp(0, 255);
+        a = a.clamp(0, 255);
 
-//region RGBFromHSV function
-eng.ColourFromHSV = function(h, s, v, a){
-    h = h.clamp(0, 1);
-    s = s.clamp(0, 1);
-    v = v.clamp(0, 1);
-    a = a.clamp(0, 1);
-
-    function HSVtoRGB(h, s, v) {
-        var r, g, b, i, f, p, q, t;
-        if (arguments.length === 1) {
-            s = h.s, v = h.v, h = h.h;
-        }
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-            case 0: r = v; g = t; b = p; break;
-            case 1: r = q; g = v; b = p; break;
-            case 2: r = p; g = v; b = t; break;
-            case 3: r = p; g = q; b = v; break;
-            case 4: r = t; g = p; b = v; break;
-            case 5: r = v; g = p; b = q; break;
-        }
+        //Public members
+        //DAVID: TODO: this syntax is VERYYYYY sketchy
         return {
-            r: Math.round(r * 255),
-            g: Math.round(g * 255),
-            b: Math.round(b * 255)
+            get r()     { return r; },
+            set r(value){ r = value.clamp(0, 255); },
+            get g()     { return g; },
+            set g(value){ g = value.clamp(0, 255); },
+            get b()     { return b; },
+            set b(value){ b = value.clamp(0, 255); },
+            get a()     { return a; },
+            set a(value){ a = value.clamp(0, 255); },
+
+            toHex: function (){
+                return "#" + r.toHex() + g.toHex() + b.toHex();
+            }
         };
-    }
-    var rgb = HSVtoRGB(h, s, v);
-    a = Math.round(a * 255);
+    };
+    //endregion
 
-   return new eng.Colour(rgb.r, rgb.g, rgb.b, a);
-};
-//endregion
+    //region RGBFromHSV function
+    Colour.ColourFromHSV = function(h, s, v, a){
+        h = h.clamp(0, 1);
+        s = s.clamp(0, 1);
+        v = v.clamp(0, 1);
+        a = a.clamp(0, 1);
 
-//region Static Colour instances.
-eng.Color = {
-    clear: new eng.Colour(0, 0, 0, 0),
-    red: new eng.Colour(255, 0, 0, 255),
-    white: new eng.Colour(255, 255, 255, 255),
-    black: new eng.Colour(0, 0, 0, 255),
+        function HSVtoRGB(h, s, v) {
+            var r, g, b, i, f, p, q, t;
+            if (arguments.length === 1) {
+                s = h.s, v = h.v, h = h.h;
+            }
+            i = Math.floor(h * 6);
+            f = h * 6 - i;
+            p = v * (1 - s);
+            q = v * (1 - f * s);
+            t = v * (1 - (1 - f) * s);
+            switch (i % 6) {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+        var rgb = HSVtoRGB(h, s, v);
+        a = Math.round(a * 255);
 
-    gui: {
-        base: eng.ColourFromHSV(0, 0, 0.2, 1),
-    },
+       return new Colour(rgb.r, rgb.g, rgb.b, a);
+    };
+    //endregion
 
-    world: {
-        background: eng.ColourFromHSV(0, 0, 0.16, 1),
-        passive: eng.ColourFromHSV(0, 0, 0.64, 1),
-        focused: eng.ColourFromHSV(0, 0, 0.80, 1),
-        drag: eng.ColourFromHSV(0, 0, 0.96, 1),
-    }
-};
+    //region Static Colour instances.
+    Colour.clear = new Colour(0, 0, 0, 0);
+    Colour.red = new Colour(255, 0, 0, 255);
+    Colour.white = new Colour(255, 255, 255, 255);
+    Colour.black = new Colour(0, 0, 0, 255);
 
-/*
-case Colours.Base:
-{
-    return HSVToRGB(0f, 0f, 0.20f);
-}
-case Colours.Control:
-{
-    return HSVToRGB(0f, 0f, 0.24f);;
-}
-case Colours.ControlHighlight:
-{
-    return HSVToRGB(0f, 0f, 0.28f);
-}
-case Colours.ControlToggleHighlight:
-{
-    return HSVToRGB(0f, 0f, 0.32f);
-}
-case Colours.ControlPressedA:
-{
-    return HSVToRGB(0.52f, 0.24f, 0.404f);
-}
-case Colours.ControlPressedB:
-{
-    return HSVToRGB(0.56f, 0.48f, 0.40f);
-}
-case Colours.ControlPressedC:
-{
-    return HSVToRGB(0.56f, 0.48f,0.48f);
-}
-case Colours.Text:
-{
-    return HSVToRGB(0f, 0f, 1.0f);
-}
-case Colours.DisabledText:
-{
-    return HSVToRGB(0f, 0f, 0.72f);
-}
-*/
+    Colour.gui = {};
+    Colour.gui.base = Colour.ColourFromHSV(0, 0, 0.2, 1);
 
+    Colour.world = {};
+    Colour.world.background  = Colour.ColourFromHSV(0, 0, 0.16, 1);
+    Colour.world.passive = Colour.ColourFromHSV(0, 0, 0.64, 1);
+    Colour.world.focused  = Colour.ColourFromHSV(0, 0, 0.80, 1);
+    Colour.world.drag= Colour.ColourFromHSV(0, 0, 0.96, 1);
+    //endregion
 
-//endregion
+    return Colour;
+});

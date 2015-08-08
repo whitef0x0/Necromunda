@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+  require('load-grunt-tasks')(grunt);
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
@@ -68,7 +69,6 @@ module.exports = function(grunt) {
     },
 
     wiredep: {
-
       dev: {
 
         src: [
@@ -83,17 +83,32 @@ module.exports = function(grunt) {
           },
         }
       }
+    },
+
+    karma: {
+      options: {
+          configFile: 'karma.conf.js',
+      },
+
+      dev: {
+          browsers: ['PhantomJS']
+      },
+      prod: {
+          singleRun: true,
+          browsers: ['Chrome', 'Firefox', 'PhantomJS']
+      }
     }
 
   });
 
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-wiredep');
+  // grunt.loadNpmTasks('grunt-contrib-concat');
+  // grunt.loadNpmTasks('grunt-contrib-uglify');
+  // grunt.loadNpmTasks('grunt-contrib-copy');
+  // grunt.loadNpmTasks('grunt-contrib-clean');
+  // grunt.loadNpmTasks('grunt-contrib-watch');
+  // grunt.loadNpmTasks('grunt-contrib-connect');
+  // grunt.loadNpmTasks('grunt-wiredep');
+  // grunt.loadNpmTasks('grunt-karma');
 
   grunt.registerTask('build', [
     'concat',
@@ -102,6 +117,7 @@ module.exports = function(grunt) {
     'clean',
     'wiredep',
   ]);
+  grunt.registerTask('test', ['karma:dev']);
   grunt.registerTask('dev', ['wiredep', 'connect', 'watch:dev']);
   grunt.registerTask('prod', ['wiredep', 'connect', 'watch:prod']);
 }

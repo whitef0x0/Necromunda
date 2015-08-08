@@ -1,7 +1,8 @@
-var bowerDep = require('main-bower-files')('**/**.js');
-
 module.exports = function(config) {
   config.set({
+
+  	// base path that will be used to resolve all patterns (eg. files, exclude)
+    basePath: '',
     frameworks: ['mocha'],
 
     files: [
@@ -10,9 +11,17 @@ module.exports = function(config) {
       'tests/*.js'
     ],
 
-    // Test results reporter to use
-	// Possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-	reporters: ['progress'],
+    // preprocess matching files before serving them to the browser
+    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    preprocessors: {
+    //     'test/*.html': ['html2js'],
+        'js/*.js': ['coverage']
+    },
+
+    // test results reporter to use
+    // possible values: 'dots', 'progress'
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+    reporters: ['progress', 'coverage'],
 
     // Web server port
 	port: 9876,
@@ -31,20 +40,17 @@ module.exports = function(config) {
 	// - Safari (only Mac)
 	// - PhantomJS
 	// - IE (only Windows)
-	browsers: ['Chrome', 'Firefox', 'PhantomJS'],
+	// browsers: ['Chrome', 'Firefox', 'PhantomJS'],
 
-	// If browser does not capture in given timeout [ms], kill it
-	captureTimeout: 60000,
 
 	// Continuous Integration mode
 	// If true, it capture browsers, run tests and exit
-	singleRun: true
+	singleRun: false,
 
-    // client: {
-    //   mocha: {
-    //     reporter: 'html', // change Karma's debug.html to the mocha web reporter
-    //     ui: 'tdd'
-    //   }
-    // }
+	// level of logging
+    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    logLevel: config.LOG_INFO,
+
+
   });
 };
