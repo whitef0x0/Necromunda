@@ -28,9 +28,12 @@ eng.Point = function(viewPort, x, y, radius, colour ){
         path.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
         return path;
     };
-    document.addEventListener("render" + this.viewPort.name, function draw(){
+
+    this.draw = function(){
         this.viewPort.fillPath(this.makeCanvasPath(), this.colour);
-    }.bind(this));
+    }
+
+    document.addEventListener("render" + this.viewPort.name, this.draw.bind(this));
 };
 //endregion
 
@@ -40,7 +43,8 @@ eng.PathPoint = function(viewPort, x, y){
     eng.Point.call(this, viewPort, x, y,  0.5, eng.Colour.world.passive);
     var mouseOver = false;
     var mouseDrag = false;
-    document.addEventListener("mousemove" + this.viewPort.name, function(mouseEvent){
+
+    this.onMouseMove = function(mouseEvent){
         if(mouseDrag){
             this.x += mouseEvent.deltaX;
             this.y += mouseEvent.deltaY;
@@ -55,19 +59,25 @@ eng.PathPoint = function(viewPort, x, y){
                 mouseOver = false;
             }
         }
-    }.bind(this));
-    document.addEventListener("mousedown" + this.viewPort.name, function(){
+    };
+
+    this.onMouseDown = function(){
         if(mouseOver){
             this.colour = eng.Colour.world.drag;
             mouseDrag = true;
         }
-    }.bind(this));
-    document.addEventListener("mouseup" + this.viewPort.name, function(){
+    };
+
+    this.onMouseUp = function(){
         if(mouseOver){
             this.colour = eng.Colour.world.focused;
             mouseDrag = false;
         }
-    }.bind(this));
+    };
+
+    document.addEventListener("mousemove" + this.viewPort.name, this.onMouseMove().bind(this));
+    document.addEventListener("mousedown" + this.viewPort.name, this.onMouseDown().bind(this));
+    document.addEventListener("mouseup" + this.viewPort.name, this.onMouseUp().bind(this);
 };
 //endregion
 
@@ -93,9 +103,11 @@ eng.Line = function (viewPort, origin, destination){
         path.lineTo(this.destination.x, this.destination.y);
         return path;
     };
-    document.addEventListener("render" + this.viewPort.name, function draw(){
+    this.draw = function(){
         this.viewPort.drawPath(this.makeCanvasPath(), this.colour);
-    }.bind(this));
+    };
+
+    document.addEventListener("render" + this.viewPort.name, this.draw().bind(this));
 };
 //endregion
 
@@ -117,7 +129,7 @@ eng.PathLine = function(viewPort, origin, destination, path){
         path.closePath();
         return path;
     };
-    document.addEventListener("mousemove" + this.viewPort.name, function(mouseEvent){
+    this.onMouseMove = function(mouseEvent){
         console.log("ready and willing!");
         if(mouseDrag){
             this.origin.x += mouseEvent.deltaX;
@@ -135,19 +147,25 @@ eng.PathLine = function(viewPort, origin, destination, path){
                 mouseOver = false;
             }
         }
-    }.bind(this));
-    document.addEventListener("mousedown" + this.viewPort.name, function(){
+    };
+
+    this.onMouseDown = function(){
         if(mouseOver){
             this.colour = eng.Colour.world.drag;
             mouseDrag = true;
         }
-    }.bind(this));
-    document.addEventListener("mouseup" + this.viewPort.name, function(){
+    };
+
+    this.onMouseUp = function(){
         if(mouseOver){
             this.colour = eng.Colour.world.focused;
             mouseDrag = false;
         }
-    }.bind(this));
+    }
+
+    document.addEventListener("mousemove" + this.viewPort.name, this.onMouseMove.bind(this));
+    document.addEventListener("mousedown" + this.viewPort.name, this.onMouseDown.bind(this));
+    document.addEventListener("mouseup" + this.viewPort.name, this.onMouseUp.bind(this));
 };
 //endregion
 
@@ -190,7 +208,6 @@ eng.Path = function(viewPort){
     this.getLastPoint = function(){
         return this.pathPoints[waypoints.length];
     };
-    //endregion
 
 };
 //endregion
@@ -232,11 +249,12 @@ eng.Rect = function(viewPort, origin, dimensions){
     this.origin = origin ||  eng.Vector.zero;
     this.dimensions = dimensions || eng.Vector.zero;
     this.viewPort = viewPort;
-    document.addEventListener("render" + this.viewPort.name, function draw(){
+    this.draw = function(){
         var path = new Path2D();
         path.rect(this.origin.x, this.origin.y, this.dimensions.x, this.dimensions.y);
         this.viewPort.drawPath(path, eng.Colour.black);
-    }.bind(this));
+    };
+    document.addEventListener("render" + this.viewPort.name, this.draw().bind(this));
 };
 //endregion
 

@@ -9,7 +9,6 @@
   "description": "Necromunda game",
   "license": "MIT",
   "dependencies": {
-    "angular": "~1.4.3",
-    "grunt-contrib-concat": "~0.5.1"
+    "angular": "~1.4.3"
   }
 }

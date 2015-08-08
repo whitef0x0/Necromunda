@@ -5,7 +5,9 @@ eng.Colour = function(r, g, b, a){
     b = b.clamp(0, 255);
     a = a.clamp(0, 255);
 
-    var publicMembers = {
+    //Public members
+    //DAVID: TODO: this syntax is VERYYYYY sketchy
+    return {
         get r()     { return r; },
         set r(value){ r = value.clamp(0, 255); },
         get g()     { return g; },
@@ -19,7 +21,6 @@ eng.Colour = function(r, g, b, a){
             return "#" + r.toHex() + g.toHex() + b.toHex();
         }
     };
-    return publicMembers;
 };
 //endregion
 
@@ -63,23 +64,23 @@ eng.ColourFromHSV = function(h, s, v, a){
 //endregion
 
 //region Static Colour instances.
-eng.Colour.clear         = new eng.Colour(0, 0, 0, 0);
-eng.Colour.red         = new eng.Colour(255, 0, 0, 255);
-eng.Colour.white         = new eng.Colour(255, 255, 255, 255);
-eng.Colour.black         = new eng.Colour(0, 0, 0, 255);
+eng.Color = {
+    clear: new eng.Colour(0, 0, 0, 0),
+    red: new eng.Colour(255, 0, 0, 255),
+    white: new eng.Colour(255, 255, 255, 255),
+    black: new eng.Colour(0, 0, 0, 255),
 
+    gui: {
+        base: eng.ColourFromHSV(0, 0, 0.2, 1),
+    },
 
-
-
-eng.Colour.gui = {};
-eng.Colour.gui.base          = eng.ColourFromHSV(0, 0, 0.2, 1);
-
-eng.Colour.world = {};
-eng.Colour.world.background  = eng.ColourFromHSV(0, 0, 0.16, 1);
-eng.Colour.world.passive     = eng.ColourFromHSV(0, 0, 0.64, 1);
-eng.Colour.world.focused     = eng.ColourFromHSV(0, 0, 0.80, 1);
-eng.Colour.world.drag        = eng.ColourFromHSV(0, 0, 0.96, 1);
-
+    world: {
+        background: eng.ColourFromHSV(0, 0, 0.16, 1),
+        passive: eng.ColourFromHSV(0, 0, 0.64, 1),
+        focused: eng.ColourFromHSV(0, 0, 0.80, 1),
+        drag: eng.ColourFromHSV(0, 0, 0.96, 1),
+    }
+};
 
 /*
 case Colours.Base:

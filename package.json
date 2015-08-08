@@ -17,7 +17,11 @@
     "grunt-contrib-copy": "^0.8.0",
     "grunt-contrib-uglify": "^0.9.1",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-replace": "^0.9.2"
+    "grunt-replace": "^0.9.2",
+    "karma": "^0.13.8",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-mocha": "^0.2.0",
+    "mocha": "^2.2.5"
   },
   "dependencies": {
     "grunt-cli": "^0.1.13",

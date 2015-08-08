@@ -16,9 +16,6 @@ module.exports = function(grunt) {
     copy: {
       prod: {
         files: [{
-          src: 'main.js',
-          dest: 'build/main.js'
-        },{
           src: 'manifest.json',
           dest: 'build/manifest.json'
         },{
@@ -103,8 +100,8 @@ module.exports = function(grunt) {
     'uglify',
     'copy',
     'clean',
+    'wiredep',
   ]);
-  // grunt.registerTask('dist', ['default']);
-  grunt.registerTask('dev', ['connect', 'watch:dev']);
-  grunt.registerTask('prod', ['connect', 'watch:prod']);
+  grunt.registerTask('dev', ['wiredep', 'connect', 'watch:dev']);
+  grunt.registerTask('prod', ['wiredep', 'connect', 'watch:prod']);
 }
