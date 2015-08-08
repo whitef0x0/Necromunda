@@ -8,21 +8,24 @@ define(function () {
         a = a.clamp(0, 255);
 
         //Public members
-        //DAVID: TODO: this syntax is VERYYYYY sketchy
-        return {
-            get r()     { return r; },
-            set r(value){ r = value.clamp(0, 255); },
-            get g()     { return g; },
-            set g(value){ g = value.clamp(0, 255); },
-            get b()     { return b; },
-            set b(value){ b = value.clamp(0, 255); },
-            get a()     { return a; },
-            set a(value){ a = value.clamp(0, 255); },
-
-            toHex: function (){
-                return "#" + r.toString(16) + g.toString(16) + b.toString(16); // r.toHex() + g.toHex() + b.toHex();
-            }
+        //DAVID: TODO: maybe change this get/set syntax 
+        var publicMembers = {
+            return {
+                get r()     { return r; },
+                set r(value){ r = value.clamp(0, 255); },
+                get g()     { return g; },
+                set g(value){ g = value.clamp(0, 255); },
+                get b()     { return b; },
+                set b(value){ b = value.clamp(0, 255); },
+                get a()     { return a; },
+                set a(value){ a = value.clamp(0, 255); },
+    
+                toHex: function (){
+                    return "#" + r.toString(16) + g.toString(16) + b.toString(16); // r.toHex() + g.toHex() + b.toHex();
+                }
+            };
         };
+        return publicMembers;
     };
     //endregion
 
