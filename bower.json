@@ -9,5 +9,8 @@
   "description": "Necromunda game",
   "license": "MIT",
   "dependencies": {
+    "should": "shouldjs/should.js#~7.0.2",
+    "mocha": "~2.2.5",
+    "requirejs": "~2.1.20"
   }
 }

@@ -27,7 +27,6 @@ define(function (require) {
     Geo.Zero_Vector = new Geo.Vector(0, 0);
     //endregion
 
-
     //region Point: A subclass of Vector that is rendered in the viewport.
     Geo.Point = function(viewPort, x, y, radius, colour ){
         //Throw error if x or y or radius are not integers 
@@ -65,7 +64,6 @@ define(function (require) {
         document.addEventListener("render" + this.viewPort.name, this.draw.bind(this));
     };
     //endregion
-
 
     //region PathPoint: an interactive subclass of Point.
     Geo.PathPoint = function(viewPort, x, y){
@@ -111,7 +109,6 @@ define(function (require) {
     };
     //endregion
 
-
     //region Line: a line between two pathPoints that is rendered in the viewport.
     Geo.Line = function (viewPort, origin, dest){
         //Throw error if x or y or radius are not integers 
@@ -154,7 +151,6 @@ define(function (require) {
         document.addEventListener("render" + this.viewPort.name, this.draw.bind(this));
     };
     //endregion
-
 
     //region PathLine: an interactive subclass of Line.
     Geo.PathLine = function(viewPort, origin, dest, path){
@@ -220,7 +216,6 @@ define(function (require) {
     };
     //endregion
 
-
     //region Path: composed of interactive PathPoints and PathLines.
     Geo.Path = function(viewPort){
         var proto = viewPort.__proto__ || viewPort.constructor.prototype;
@@ -266,7 +261,6 @@ define(function (require) {
         };
     };
     //endregion
-
 
     Geo.Combatant = function(viewPort, x, y, speed, path){
         Geo.Point.call(this, viewPort, x,  y, 2, Colour.red);
